@@ -62,8 +62,11 @@ class Game extends React.Component {
     const winner = calculateWinner(current.squares);
 
     const moves = history.map((step, move) => {
+      const currentPlayer = move % 2 === 1 ? 'X' : 'O';
+      const [column, row] = this.getMoveLocation(step.squares, move > 0 ? history[move - 1].squares : null);
+      const moveDescription = currentPlayer + ": (" + column + ", " + row + ")";
       const description = move ?
-      'Go to move #' + move :
+      'Go to move #' + move + " - " + moveDescription :
       'Go to game start';
 
       return(
@@ -96,6 +99,18 @@ class Game extends React.Component {
         </div>
       </div>
     );
+  }
+  
+  getMoveLocation(current, last) {
+    if(current === null) return [0, 0];
+
+    for(let i = 0; i < current.length; i++) {
+      if((last === null && current[i] !== null) || (last !== null && current[i] !== last[i])) {
+          return [i % 3 + 1, Math.floor(i / 3) + 1];
+        }
+    }
+
+    return [0, 0];
   }
 
   handleClick(i) {
