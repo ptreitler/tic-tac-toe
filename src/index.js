@@ -3,14 +3,14 @@ import ReactDOM from 'react-dom';
 import './index.css'
 
 function Square(props) {
-    return (
-      <button
-        className="square"
-        onClick={props.onClick}
-      >
-        {props.value}
-      </button>
-    );
+  return (
+    <button
+      className="square"
+      onClick={props.onClick}
+    >
+      {props.value}
+    </button>
+  );
 }
 
 class Board extends React.Component {
@@ -22,25 +22,16 @@ class Board extends React.Component {
   }
 
   render() {
-    return (
-      <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-      </div>
-    );
+    let squares = [];
+    for (let row = 0; row < 3; row++) {
+      let currentRow = [];
+      for (let column = 0; column < 3; column++) {
+        currentRow.push(this.renderSquare(row * 3 + column));
+      }
+      squares.push(<div className="board-row" key={row}>{currentRow}</div>);
+    }
+
+    return <div>{squares}</div>;
   }
 }
 
@@ -66,14 +57,14 @@ class Game extends React.Component {
       const [column, row] = this.getMoveLocation(step.squares, move > 0 ? history[move - 1].squares : null);
       const moveDescription = currentPlayer + ": (" + column + ", " + row + ")";
       const description = move ?
-      'Go to move #' + move + " - " + moveDescription :
-      'Go to game start';
+        'Go to move #' + move + " - " + moveDescription :
+        'Go to game start';
 
-      return(
+      return (
         <li key={move}>
-          <button 
+          <button
             onClick={() => this.jumpTo(move)}
-            style={ this.state.stepNumber == move ? { fontWeight: 'bold' } : { fontWeight: 'normal' } }
+            style={this.state.stepNumber === move ? { fontWeight: 'bold' } : { fontWeight: 'normal' }}
           >
             {description}
           </button>
@@ -92,9 +83,9 @@ class Game extends React.Component {
     return (
       <div className="game">
         <div className="game-board">
-          <Board 
-          squares={current.squares}
-          onClick={(i) => this.handleClick(i)}
+          <Board
+            squares={current.squares}
+            onClick={(i) => this.handleClick(i)}
 
           />
         </div>
@@ -105,14 +96,14 @@ class Game extends React.Component {
       </div>
     );
   }
-  
-  getMoveLocation(current, last) {
-    if(current === null) return [0, 0];
 
-    for(let i = 0; i < current.length; i++) {
-      if((last === null && current[i] !== null) || (last !== null && current[i] !== last[i])) {
-          return [i % 3 + 1, Math.floor(i / 3) + 1];
-        }
+  getMoveLocation(current, last) {
+    if (current === null) return [0, 0];
+
+    for (let i = 0; i < current.length; i++) {
+      if ((last === null && current[i] !== null) || (last !== null && current[i] !== last[i])) {
+        return [i % 3 + 1, Math.floor(i / 3) + 1];
+      }
     }
 
     return [0, 0];
@@ -129,16 +120,16 @@ class Game extends React.Component {
 
     squares[i] = this.state.xIsNext ? 'X' : 'O';
     this.setState({
-      history: history.concat([{squares: squares}]),
+      history: history.concat([{ squares: squares }]),
       xIsNext: !this.state.xIsNext,
       stepNumber: history.length,
     });
   }
-  
+
   jumpTo(step) {
     this.setState({
       stepNumber: step,
-      xIsNext : (step % 2) === 0,
+      xIsNext: (step % 2) === 0,
     });
   }
 }
@@ -154,12 +145,12 @@ function calculateWinner(squares) {
     [0, 4, 8],
     [2, 4, 6],
   ];
-  
+
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
-    if(squares[a] && squares[a] === squares[b] && squares[b] === squares[c]) {
+    if (squares[a] && squares[a] === squares[b] && squares[b] === squares[c]) {
       return squares[a];
-    } 
+    }
   }
 
   return null;
