@@ -7,6 +7,7 @@ function Square(props) {
     <button
       className="square"
       onClick={props.onClick}
+      style={props.isWinningSquare ? { backgroundColor: 'yellow' } : null}
     >
       {props.value}
     </button>
@@ -17,6 +18,7 @@ class Board extends React.Component {
   renderSquare(i) {
     return <Square
       value={this.props.squares[i]}
+      isWinningSquare={this.props.winningSquares && this.props.winningSquares.includes(i)}
       onClick={() => this.props.onClick(i)}
     />;
   }
@@ -26,7 +28,8 @@ class Board extends React.Component {
     for (let row = 0; row < 3; row++) {
       let currentRow = [];
       for (let column = 0; column < 3; column++) {
-        currentRow.push(this.renderSquare(row * 3 + column));
+        const index = row * 3 + column;
+        currentRow.push(this.renderSquare(index));
       }
       squares.push(<div className="board-row" key={row}>{currentRow}</div>);
     }
@@ -51,7 +54,9 @@ class Game extends React.Component {
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares);
+    const calculateWinnerResult = calculateWinner(current.squares);
+    const winner = calculateWinnerResult ? calculateWinnerResult.winningSquares : null;
+    const winningSquares = calculateWinnerResult ? calculateWinnerResult.winningSquares : null;
 
     const moves = history.map((step, move) => {
       const currentPlayer = move % 2 === 1 ? 'X' : 'O';
@@ -92,8 +97,8 @@ class Game extends React.Component {
         <div className="game-board">
           <Board
             squares={current.squares}
+            winningSquares={winningSquares}
             onClick={(i) => this.handleClick(i)}
-
           />
         </div>
         <div className="game-info">
@@ -122,7 +127,8 @@ class Game extends React.Component {
     const current = history[history.length - 1];
     const squares = current.squares.slice();
 
-    if (calculateWinner(squares) || squares[i]) {
+    const calculateWinnerResult = calculateWinner(squares)
+    if ((calculateWinnerResult && calculateWinnerResult.winner) || squares[i]) {
       return;
     }
 
@@ -157,7 +163,10 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[b] === squares[c]) {
-      return squares[a];
+      return {
+        winner: squares[a],
+        winningSquares: lines[i]
+      };
     }
   }
 
